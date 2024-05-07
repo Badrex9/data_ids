@@ -10,6 +10,7 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_s
 import glob
 import random
 from sklearn.model_selection import train_test_split
+from keras.models import load_model
 
 class Flux:
     #Lors de la création d'un nouveau flux, on créé un matrice vide
@@ -302,10 +303,10 @@ def train_model(X,Y, epochs=20):
     model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
     model.add(layers.Flatten())
     model.add(layers.Dense(64, activation='relu'))
-    #model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
-    #model.add(layers.Dense(128, activation='relu'))
+    model.add(layers.Dense(128, activation='relu'))
+    model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(64, activation='relu'))
     model.add(layers.Dense(15))
 
@@ -385,7 +386,7 @@ X_input = np.load('./X_input_split_train/X_input_0.npy')
 d_model = np.shape(X_input)[1]
 for i in range(1, 20):
     X_input = np.concatenate((X_input, np.load('./X_input_split_train/X_input_'+str(i)+'.npy')))
-Y = np.load('./X_input_split_train/Y_input.npy')
+Y = np.load('./X_input_split_train/Y.npy')
 print("--------------------Fin du chargement des données--------------------")
 
 
@@ -396,12 +397,13 @@ print("--------------------Load test--------------------")
 X_input_test = np.load('./X_input_split_test/X_input_0.npy')
 for i in range(1, 10):
     X_input_test = np.concatenate((X_input_test, np.load('./X_input_split_test/X_input_'+str(i)+'.npy')))
-Y_test = np.load('./X_input_split_test/Y_input_test.npy')
-X_input_test = X_input_test.reshape(np.shape(X_input_test)[0],82,10,1)
+Y_test = np.load('./X_input_split_test/Y_test.npy')
+
+X_input_test = X_input_test.reshape(np.shape(X_input_test)[0],d_model,d_historique,1)
 
 print("--------------------Prédiction du modèle--------------------")
 prediction = model.predict(X_input_test)
 
 y_prediction = prediction.argmax(axis=1)
-np.save('./Y_prediction/Y_prediction_complet.npy', y_prediction)
-np.save('./Y_prediction/Y_true_complet.npy', Y_test)
+np.save('./Y_prediction/Y_prediction_complet_dense4.npy', y_prediction)
+np.save('./Y_prediction/Y_true_complet_dense4.npy', Y_test)
