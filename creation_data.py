@@ -391,6 +391,8 @@ print("--------------------Création des tableaux 2D pour les données entrainem
 d_model = np.shape(X)[1]
 d_historique = 20
 X_input = transformation_2D(X, source_ip, dest_ip)
+X_input_test = transformation_2D(X_test, source_ip_test, dest_ip_test)
+
 
 print("--------------------Ajout positional encoding--------------------")
 positional_encoding = getPositionEncoding(seq_len=d_historique, d=np.shape(X_input)[1], n=10000)
@@ -401,15 +403,16 @@ for X_inp in tqdm(X_input):
             X_inp[:,i] = X_inp[:,i] + positional_encoding[:,i]
 print("--------------------Fin positional encoding--------------------")
 
-print("--------------------Entrainement du modèle--------------------")
-model = train_model(X_input,Y, epochs=30)
-
-
-X_input_test = transformation_2D(X_test, source_ip_test, dest_ip_test)
-prediction = model.predict(X_input_test)
 split_npy_save(X_input_test, 10, 'X_input_split_test')
 split_npy_save(X_input, 20, 'X_input_split_train')
+np.save('./X_input_split_test/Y_test.npy', Y_test)
+np.save('./X_input_split_train/Y.npy', Y)
 
-y_prediction = prediction.argmax(axis=1)
-np.save('./Y_prediction/Y_prediction_complet.npy', y_prediction)
-np.save('./Y_prediction/Y_true_complet.npy', Y_test)
+#print("--------------------Entrainement du modèle--------------------")
+#model = train_model(X_input,Y, epochs=30)
+
+#prediction = model.predict(X_input_test)
+
+#y_prediction = prediction.argmax(axis=1)
+#np.save('./Y_prediction/Y_prediction_complet.npy', y_prediction)
+#np.save('./Y_prediction/Y_true_complet.npy', Y_test)
