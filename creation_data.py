@@ -303,8 +303,8 @@ def train_model(X,Y, epochs=20):
     model.add(layers.Flatten())
     model.add(layers.Dense(64, activation='relu'))
     #model.add(layers.Dense(128, activation='relu'))
-    #model.add(layers.Dense(128, activation='relu'))
-    #model.add(layers.Dense(128, activation='relu'))
+    model.add(layers.Dense(128, activation='relu'))
+    model.add(layers.Dense(128, activation='relu'))
     #model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(64, activation='relu'))
     model.add(layers.Dense(15))
@@ -312,12 +312,12 @@ def train_model(X,Y, epochs=20):
     model.summary()
     from keras import optimizers
 
-    model.compile(optimizer=optimizers.Adam(learning_rate=1e-4),
+    model.compile(optimizer=optimizers.Adam(learning_rate=1e-5),
                 loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                 metrics=['accuracy'])
     #print(sys.getsizeof(model))
     model.fit(X, Y, epochs=epochs)#, batch_size=65536)
-    model.save('./saved_models/model_70_30_dh_10_dense2.h5')
+    model.save('./Y_prediction/model_70_30_dh_10_dense2.h5')
     #model.save('../content/drive/MyDrive/Stage sherbrooke/Model/saved_models/model_dh_30_lr_1e-5
     return model
 
@@ -344,7 +344,15 @@ def print_confusion_matrix(X_input, Y, model, chemin, titre, subtitle):
     plt.savefig(chemin)
     plt.show()
 
-
+def split_npy_save(array, number_of_files, folder):
+    file_name = 'X_input'
+    i=0
+    mem = 0
+    len_array = len(array)
+    for i in range(number_of_files):
+        np.save('./'+folder+'/X_input_'+str(i)+'.npy', array[mem:int((i+1)*len_array/number_of_files)])
+        mem =int((i+1)*len_array/number_of_files)
+        
 def main():
     print("--------------------Importation données--------------------")
     data_frame = importation_csv()
@@ -375,4 +383,33 @@ data_frame = importation_csv()
 print("--------------------Séparation des données--------------------")
 X_data, Y_data, source_ip_data, dest_ip_data, protocol = creation_X_Y_ip(data_frame)
 
-np.save('./Y_prediction/Y_data.npy', Y_data)
+
+#Choix des données pour l'entrainement du modèle
+print("--------------------Sélection des données d'entrainement--------------------")
+X, X_test, Y, Y_test, source_ip, source_ip_test, dest_ip, dest_ip_test = choix_donnees_entrainement_70_30(X_data, Y_data, source_ip_data, dest_ip_data)
+print("--------------------Création des tableaux 2D pour les données entrainement--------------------")
+d_model = np.shape(X)[1]
+d_historique = 20
+X_input = transformation_2D(X, source_ip, dest_ip)
+
+print("--------------------Ajout positional encoding--------------------")
+positional_encoding = getPositionEncoding(seq_len=d_historique, d=np.shape(X_input)[1], n=10000)
+len_x_inp = np.shape(X_input)[2]
+for X_inp in tqdm(X_input):
+    for i in range(len_x_inp):
+        if (np.count_nonzero(X_inp[:,i])!=0):
+            X_inp[:,i] = X_inp[:,i] + positional_encoding[:,i]
+print("--------------------Fin positional encoding--------------------")
+
+print("--------------------Entrainement du modèle--------------------")
+model = train_model(X_input,Y, epochs=30)
+
+
+X_input_test = transformation_2D(X_test, source_ip_test, dest_ip_test)
+prediction = model.predict(X_input_test)
+split_npy_save(X_input_test, 10, 'X_input_split_test')
+split_npy_save(X_input, 20, 'X_input_split_train')
+
+y_prediction = prediction.argmax(axis=1)
+np.save('./Y_prediction/Y_prediction_complet.npy', y_prediction)
+np.save('./Y_prediction/Y_true_complet.npy', Y_test)
