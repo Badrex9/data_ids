@@ -295,11 +295,11 @@ def getPositionEncoding(seq_len, d, n=10000):
 
 def train_model(X,Y, epochs=20):
     model = models.Sequential()
-    model.add(layers.Conv1D(64, (3, 3), activation='relu', input_shape=(d_model, 1)))
-    model.add(layers.MaxPooling1D((2, 2)))
-    model.add(layers.Conv1D(128, (3, 3), activation='relu', padding='same'))
-    model.add(layers.MaxPooling1D((2, 2), padding='same'))
-    model.add(layers.Conv1D(128, (3, 3), activation='relu', padding='same'))
+    model.add(layers.Conv1D(64, kernel_size=3, activation='relu', input_shape=(d_model, 1)))
+    model.add(layers.MaxPooling1D(2))
+    model.add(layers.Conv1D(128,kernel_size=3, activation='relu', padding='same'))
+    model.add(layers.MaxPooling1D(2, padding='same'))
+    model.add(layers.Conv1D(128, kernel_size=3, activation='relu', padding='same'))
     model.add(layers.Flatten())
     model.add(layers.Dense(64, activation='relu'))
     #model.add(layers.Dense(128, activation='relu'))
