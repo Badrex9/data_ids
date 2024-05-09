@@ -392,7 +392,7 @@ d_model = np.shape(X_input_test)[1]
 X_input_test = X_input_test.reshape(np.shape(X_input_test)[0],d_model,d_historique,1)
 
 
-model = load_model('./Y_prediction/model_70_30_dh_10_dense2.h5')
+model = load_model('./Y_prediction/model_70_30_2D_100epochs.h5')
 
 print("--------------------Prédiction du modèle--------------------")
 prediction = model.predict(X_input_test)
