@@ -179,7 +179,7 @@ class Transformer(nn.Module):
             if len_x%batch_size!=0:
                 running_loss += self.one_epoch(j, X_input, Y, len_x%batch_size, optimizer, criterion)
             print(f"Epoch: {epoch+1}, Loss: {running_loss}")
-    
+
     #def predict(self, X_input):
 
 
@@ -346,6 +346,7 @@ d_ff = 1024 #RTIDS dimension du FFN layer
 dropout = 0.5 #RTIDS
 batch_size = 128 #RTIDS batch_size = 128
 epochs = 20
+PATH = "./Y_prediction/modele_transformer.pth"
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
@@ -356,3 +357,5 @@ Y = torch.from_numpy(Y).to(device)
 transformer = Transformer(d_model, num_heads, num_layers, d_ff, dropout, d_output, seq_len)
 transformer.to(device)
 transformer.train_model(X_input, Y, batch_size, epochs)
+
+torch.save(transformer.state_dict(), PATH)
