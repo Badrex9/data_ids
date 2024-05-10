@@ -163,7 +163,7 @@ class Transformer(nn.Module):
         optimizer.step()
         return loss.item()
     
-    def train_model(self, X_input, Y, batch_size, num_epochs):
+    def train_model(self, device, X_input, Y, batch_size, num_epochs):
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(self.parameters(), lr=0.0005)  #RTIDS
         len_x = np.shape(X_input)[0] 
@@ -174,7 +174,7 @@ class Transformer(nn.Module):
             running_loss = 0.
             len_without_rest = len_x - len_x%batch_size
             for j in tqdm(range(0, len_without_rest, batch_size)):
-                running_loss += self.one_epoch(j, X_input, Y, batch_size, optimizer, criterion)
+                running_loss += self.one_epoch(j, X_input.to(device), Y.to(device), batch_size, optimizer, criterion)
             #On fait la vision euclidienne car le dernier batch n'est pas forcément pile de la longeur du batch voulue (plus petit)
             if len_x%batch_size!=0:
                 running_loss += self.one_epoch(j, X_input, Y, len_x%batch_size, optimizer, criterion)
@@ -347,5 +347,9 @@ dropout = 0.5 #RTIDS
 batch_size = 128 #RTIDS batch_size = 128
 epochs = 20
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print(device)
+
 transformer = Transformer(d_model, num_heads, num_layers, d_ff, dropout, d_output, seq_len)
+transformer.to(device)
 transformer.train_model(X_input, Y, batch_size, epochs)
