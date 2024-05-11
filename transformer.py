@@ -17,6 +17,7 @@ import glob
 import random
 from sklearn.model_selection import train_test_split
 from keras.models import load_model
+import torch.nn.functional as F
 
 
 
@@ -157,7 +158,7 @@ class Transformer(nn.Module):
         optimizer.zero_grad()
         
         output = self(input)
-        loss = criterion(output[:,0,:], labels)
+        loss = criterion(F.softmax(output[:,0,:], dim=1), labels)
         loss.backward()
 
         optimizer.step()
@@ -165,7 +166,7 @@ class Transformer(nn.Module):
     
     def train_model(self, X_input, Y, batch_size, num_epochs):
         criterion = nn.CrossEntropyLoss()
-        optimizer = optim.Adam(self.parameters(), lr=0.0005)  #RTIDS
+        optimizer = optim.Adam(self.parameters(), lr=5e-4)  #RTIDS
         len_x = np.shape(X_input)[0] 
         if batch_size>len_x:
             batch_size=len_x
@@ -179,9 +180,27 @@ class Transformer(nn.Module):
             if len_x%batch_size!=0:
                 running_loss += self.one_epoch(j, X_input, Y, len_x%batch_size, optimizer, criterion)
             print(f"Epoch: {epoch+1}, Loss: {running_loss}")
+    
+    def predict(self, X_test, batch_size):
+        len_x = np.shape(X_test)[0]
+        len_without_rest = len_x - len_x%batch_size
+        X_test = torch.from_numpy(X_test)
 
-    #def predict(self, X_input):
-
+        j=0
+        for j in range(0, len_without_rest, batch_size):
+            if (j==0):
+                output = self(X_test[j:j+batch_size].view(batch_size, self.seq_len, self.d_model))
+            else:
+                output = torch.cat((output, self(X_test[j:j+batch_size].view(batch_size, self.seq_len, self.d_model))), 0)
+        #On fait la vision euclidienne car le dernier batch n'est pas forcément pile de la longeur du batch voulue (plus petit)
+        reste = len_x%batch_size
+        if reste!=0:
+            if (j==0):
+                output = self(X_test[j:j+reste].view(reste, self.seq_len, self.d_model))
+            else: 
+                output = torch.cat((output, self(X_test[j:j+reste].view(reste, self.seq_len, self.d_model))), 0)
+        return torch.argmax(F.softmax(output[:,0,:], dim=1), dim = 1).numpy()
+    
 
 
 class Flux:
@@ -337,6 +356,9 @@ print("--------------------Sélection des données d'entrainement---------------
 X_input, X_test, Y, Y_test, source_ip, source_ip_test, dest_ip, dest_ip_test = choix_donnees_entrainement_70_30(X_data, Y_data, source_ip_data, dest_ip_data)
 print("--------------------Création des tableaux 2D pour les données entrainement--------------------")
 
+np.save("./X_test.npy", X_test)
+np.save("./Y_test.npy", Y_test)
+
 d_output = 15 #Nombre de labels
 d_model = 1
 seq_len = np.shape(X_input)[1] #np.shape(X_input)[1] #Longueur du vecteur d'entrée (d_model) normalement 82
@@ -345,7 +367,7 @@ num_layers = 6 #RTIDS Nombre de répétition des encoders/decoders
 d_ff = 1024 #RTIDS dimension du FFN layer
 dropout = 0.5 #RTIDS
 batch_size = 128 #RTIDS batch_size = 128
-epochs = 20
+epochs = 50
 PATH = "./Y_prediction/modele_transformer.pth"
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -359,3 +381,4 @@ transformer.to(device)
 transformer.train_model(X_input, Y, batch_size, epochs)
 
 torch.save(transformer.state_dict(), PATH)
+
