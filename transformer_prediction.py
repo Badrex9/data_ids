@@ -344,22 +344,7 @@ def split_npy_save(array, number_of_files, folder):
         np.save('./'+folder+'/X_input_'+str(i)+'.npy', array[mem:int((i+1)*len_array/number_of_files)])
         mem =int((i+1)*len_array/number_of_files)
 
-
-print("--------------------Importation données--------------------")
-data_frame = importation_csv()
-print("--------------------Séparation des données--------------------")
-X_data, Y_data, source_ip_data, dest_ip_data, protocol = creation_X_Y_ip(data_frame)
-
-
-#Choix des données pour l'entrainement du modèle
-print("--------------------Sélection des données d'entrainement--------------------")
-X_input, X_test, Y, Y_test, source_ip, source_ip_test, dest_ip, dest_ip_test = choix_donnees_entrainement_70_30(X_data, Y_data, source_ip_data, dest_ip_data)
-print("--------------------Création des tableaux 2D pour les données entrainement--------------------")
-
-
-X_test = X_test[:1000, :]
-
-print(np.shape(X_test))
+X_test = np.load("./Y_prediction/X_test.npy")
 
 d_output = 15 #Nombre de labels
 d_model = 1
@@ -384,5 +369,4 @@ transformer.load_state_dict(torch.load(PATH, map_location=torch.device('cpu')), 
 #  print(param.data)
   
 np.save("./Y_prediction/y_pred_transformer.npy", transformer.predict(X_test, batch_size))
-np.save("./Y_prediction/y_true_transformer.npy", Y_test)
 
