@@ -199,7 +199,7 @@ class Transformer(nn.Module):
                 output = torch.argmax(F.softmax(value)[:,0,:], dim = 1)
             else: 
                 output = torch.cat((output, torch.argmax(F.softmax(value)[:,0,:], dim = 1)), 0)
-        return output.numpy()
+        return output
 
 
 class Flux:
@@ -369,6 +369,10 @@ transformer.load_state_dict(torch.load(PATH, map_location=torch.device('cpu')), 
 
 #for param in transformer.parameters():
 #  print(param.data)
-  
-np.save("./Y_prediction/y_pred_transformer.npy", transformer.predict(X_test, batch_size))
+
+output = transformer.predict(X_test, batch_size)
+
+output = output.cpu().numpy()
+
+np.save("./Y_prediction/y_pred_transformer.npy", output)
 
