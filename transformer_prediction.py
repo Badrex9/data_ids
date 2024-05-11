@@ -184,7 +184,6 @@ class Transformer(nn.Module):
     def predict(self, X_test, batch_size):
         len_x = np.shape(X_test)[0]
         len_without_rest = len_x - len_x%batch_size
-        X_test = torch.from_numpy(X_test)
 
         j=0
         for j in range(0, len_without_rest, batch_size):
@@ -355,10 +354,13 @@ d_ff = 1024 #RTIDS dimension du FFN layer
 dropout = 0.5 #RTIDS
 batch_size = 128 #RTIDS batch_size = 128
 epochs = 1
-PATH = "./modele_transformer.pth"
+PATH = "./Y_prediction/modele_transformer.pth"
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+X_X_testinput = torch.from_numpy(X_test).to(device)
 
 
-transformer = Transformer(d_model, num_heads, num_layers, d_ff, dropout, d_output, seq_len)
+transformer = Transformer(d_model, num_heads, num_layers, d_ff, dropout, d_output, seq_len).to(device)
 
 #for param in transformer.parameters():
 #  print(param.data)
