@@ -17,8 +17,10 @@ class Flux:
     def __init__(self, source_port, dest_port, packet, d_model, d_historique):
         self.sp = source_port
         self.dp = dest_port
-        matrice_base = np.zeros((d_model, d_historique-1))
-        self.matrice = np.insert(matrice_base,0, packet, axis=1)
+        self.matrice = np.zeros((d_model, d_historique-1))
+        for i in range(d_historique):
+            self.matrice = self.matrice[:,0:d_historique-1]
+            self.matrice = np.insert(self.matrice,0, packet, axis=1)
 
     def decalage_matriciel(self, vecteur):
         #d_historique = np.shape(self.matrice)[1]
