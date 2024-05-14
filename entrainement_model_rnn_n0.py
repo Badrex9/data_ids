@@ -296,12 +296,11 @@ def getPositionEncoding(seq_len, d, n=10000):
 
 def train_model(X,Y, epochs=20):
     model = models.Sequential()
-    model.add(layers.Conv2D(64, (3, 3), activation='relu', input_shape=(d_model,d_historique, 1)))
-    model.add(layers.MaxPooling2D((2, 2)))
-    model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
-    model.add(layers.MaxPooling2D((2, 2), padding='same'))
-    model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
-    model.add(layers.Flatten())
+
+    model.add(layers.LSTM(64, return_sequences=True,
+                input_shape=(d_model,d_historique)))  
+    model.add(layers.LSTM(128, return_sequences=True))  
+    model.add(layers.LSTM(64))  
     model.add(layers.Dense(64, activation='relu'))
     #model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
@@ -318,7 +317,7 @@ def train_model(X,Y, epochs=20):
                 metrics=['accuracy'])
     #print(sys.getsizeof(model))
     model.fit(X, Y, epochs=epochs)#, batch_size=65536)
-    model.save('./Y_prediction/model_CNN_2D_n0.h5')
+    model.save('./Y_prediction/model_rnn.h5')
     #model.save('../content/drive/MyDrive/Stage sherbrooke/Model/saved_models/model_dh_30_lr_1e-5
     return model
 
@@ -405,5 +404,5 @@ print("--------------------Prédiction du modèle--------------------")
 prediction = model.predict(X_input_test)
 
 y_prediction = prediction.argmax(axis=1)
-np.save('./Y_prediction/Y_prediction_complet_2D_n0.npy', y_prediction)
-np.save('./Y_prediction/Y_true_complet_2D_n0.npy', Y_test)
+np.save('./Y_prediction/Y_prediction_complet_rnn_n0.npy', y_prediction)
+np.save('./Y_prediction/Y_true_complet_rnn_n0.npy', Y_test)
