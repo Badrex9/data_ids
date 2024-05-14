@@ -16,8 +16,10 @@ class Flux:
     def __init__(self, source_port, dest_port, packet, d_model, d_historique):
         self.sp = source_port
         self.dp = dest_port
-        matrice_base = np.zeros((d_model, d_historique-1))
-        self.matrice = np.insert(matrice_base,0, packet, axis=1)
+        self.matrice = np.zeros((d_model, d_historique-1))
+        for i in range(d_historique):
+            self.matrice = self.matrice[:,0:d_historique-1]
+            self.matrice = np.insert(self.matrice,0, packet, axis=1)
 
     def decalage_matriciel(self, vecteur):
         #d_historique = np.shape(self.matrice)[1]
@@ -394,26 +396,26 @@ X_input = transformation_2D(X, source_ip, dest_ip)
 X_input_test = transformation_2D(X_test, source_ip_test, dest_ip_test)
 
 
-print("--------------------Ajout positional encoding--------------------")
-positional_encoding = getPositionEncoding(seq_len=d_historique, d=np.shape(X_input)[1], n=10000)
-len_x_inp = np.shape(X_input)[2]
-for X_inp in tqdm(X_input):
-    for i in range(len_x_inp):
-        if (np.count_nonzero(X_inp[:,i])!=0):
-            X_inp[:,i] = X_inp[:,i] + positional_encoding[:,i]
-print("--------------------Fin positional encoding--------------------")
+#print("--------------------Ajout positional encoding--------------------")
+#positional_encoding = getPositionEncoding(seq_len=d_historique, d=np.shape(X_input)[1], n=10000)
+#len_x_inp = np.shape(X_input)[2]
+#for X_inp in tqdm(X_input):
+#    for i in range(len_x_inp):
+#        if (np.count_nonzero(X_inp[:,i])!=0):
+#            X_inp[:,i] = X_inp[:,i] + positional_encoding[:,i]
+#print("--------------------Fin positional encoding--------------------")
 
-print("--------------------Ajout positional encoding--------------------")
-positional_encoding = getPositionEncoding(seq_len=d_historique, d=np.shape(X_input_test)[1], n=10000)
-len_x_inp = np.shape(X_input_test)[2]
-for X_inp in tqdm(X_input_test):
-    for i in range(len_x_inp):
-        if (np.count_nonzero(X_inp[:,i])!=0):
-            X_inp[:,i] = X_inp[:,i] + positional_encoding[:,i]
-print("--------------------Fin positional encoding--------------------")
+#print("--------------------Ajout positional encoding--------------------")
+#positional_encoding = getPositionEncoding(seq_len=d_historique, d=np.shape(X_input_test)[1], n=10000)
+#len_x_inp = np.shape(X_input_test)[2]
+#for X_inp in tqdm(X_input_test):
+#    for i in range(len_x_inp):
+#        if (np.count_nonzero(X_inp[:,i])!=0):
+#            X_inp[:,i] = X_inp[:,i] + positional_encoding[:,i]
+#print("--------------------Fin positional encoding--------------------")
 
 
-split_npy_save(X_input_test, 10, 'X_input_split_test')
-split_npy_save(X_input, 20, 'X_input_split_train')
-np.save('./X_input_split_test/Y_test.npy', Y_test)
-np.save('./X_input_split_train/Y.npy', Y)
+split_npy_save(X_input_test, 10, 'X_input_split_test_no0')
+split_npy_save(X_input, 20, 'X_input_split_train_no0')
+np.save('./X_input_split_test/Y_test.npy_no0', Y_test)
+np.save('./X_input_split_train/Y.npy_no0', Y)
