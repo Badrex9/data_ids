@@ -392,11 +392,11 @@ d_model = np.shape(X_input_test)[1]
 X_input_test = X_input_test.reshape(np.shape(X_input_test)[0],d_model,d_historique,1)
 
 
-model = load_model('./Y_prediction/model_CNN_2D_n0.h5')
+model = load_model('./Y_prediction/model_CNN_2D_n0_avg_pooling.h5')
 
 print("--------------------Prédiction du modèle--------------------")
 prediction = model.predict(X_input_test)
 
 y_prediction = prediction.argmax(axis=1)
-np.save('./Y_prediction/Y_prediction_complet_2D_n0.npy', y_prediction)
-np.save('./Y_prediction/Y_true_complet_2D_n0.npy', Y_test)
+np.save('./Y_prediction/Y_prediction_complet_2D_n0_avg_pooling.npy', y_prediction)
+np.save('./Y_prediction/Y_true_complet_2D_n0_avg_pooling.npy', Y_test)
