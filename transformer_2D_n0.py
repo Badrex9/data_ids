@@ -140,8 +140,8 @@ class Transformer(nn.Module):
         output = self.fc(dec_output)
         return output
     
-    def one_epoch(self, j, X_input, Y, batch_size, optimizer, criterion, device):
-        input = X_input[j:j+batch_size].transpose(1,2).to(device)  #.view(batch_size, self.seq_len, self.d_model)
+    def one_epoch(self, j, X_input, Y, batch_size, optimizer, criterion):
+        input = X_input[j:j+batch_size].transpose(1,2)  #.view(batch_size, self.seq_len, self.d_model)
         labels = Y[j:j+batch_size].view(batch_size)
         optimizer.zero_grad()
         
@@ -154,7 +154,7 @@ class Transformer(nn.Module):
         print(loss_value)
         return loss_value
     
-    def train_model(self, X_input, Y, batch_size, num_epochs, device):
+    def train_model(self, X_input, Y, batch_size, num_epochs):
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(self.parameters(), lr=1e-5)  #RTIDS
         len_x = np.shape(X_input)[0] 
@@ -165,10 +165,10 @@ class Transformer(nn.Module):
             running_loss = 0.
             len_without_rest = len_x - len_x%batch_size
             for j in range(0, len_without_rest, batch_size):
-                running_loss += self.one_epoch(j, X_input, Y, batch_size, optimizer, criterion, device)
+                running_loss += self.one_epoch(j, X_input, Y, batch_size, optimizer, criterion)
             #On fait la vision euclidienne car le dernier batch n'est pas forcément pile de la longeur du batch voulue (plus petit)
             if len_x%batch_size!=0:
-                running_loss += self.one_epoch(j, X_input, Y, len_x%batch_size, optimizer, criterion, device)
+                running_loss += self.one_epoch(j, X_input, Y, len_x%batch_size, optimizer, criterion)
             print(f"Epoch: {epoch+1}, Loss: {running_loss}")
     
     def predict(self, X_test, batch_size):
@@ -209,7 +209,7 @@ num_heads = 2  #d_model % num_heads == 0, "d_model must be divisible by num_head
 num_layers = 6 #RTIDS Nombre de répétition des encoders/decoders
 d_ff = 1024 #RTIDS dimension du FFN layer
 dropout = 0.5 #RTIDS
-batch_size = 128 #RTIDS batch_size = 128
+batch_size = 32 #RTIDS batch_size = 128
 epochs = 50
 PATH = "./model_transformer/modele_transformer_2D.pth"
 
@@ -217,13 +217,13 @@ PATH = "./model_transformer/modele_transformer_2D.pth"
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-X_input = torch.from_numpy(X_input)
-Y = torch.from_numpy(Y)
+X_input = torch.from_numpy(X_input).to(device)
+Y = torch.from_numpy(Y).to(device)
 
 
 transformer = Transformer(d_model, num_heads, num_layers, d_ff, dropout, d_output, seq_len)
 transformer.to(device)
-transformer.train_model(X_input, Y, batch_size, epochs, device)
+transformer.train_model(X_input, Y, batch_size, epochs)
 
 
 torch.save(transformer.state_dict(), PATH)
