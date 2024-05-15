@@ -141,7 +141,7 @@ class Transformer(nn.Module):
         return output
     
     def one_epoch(self, j, X_input, Y, batch_size, optimizer, criterion):
-        input = X_input[j:j+batch_size].transpose(1,2)  #.view(batch_size, self.seq_len, self.d_model)
+        input = X_input[j:j+batch_size].transpose(1,2).to(device)  #.view(batch_size, self.seq_len, self.d_model)
         labels = Y[j:j+batch_size].view(batch_size)
         optimizer.zero_grad()
         
@@ -154,10 +154,9 @@ class Transformer(nn.Module):
         print(loss_value)
         return loss_value
     
-    def train_model(self, X_input, Y, batch_size, num_epochs):
+    def train_model(self, X_input, Y, batch_size, num_epochs, len_x):
         criterion = nn.CrossEntropyLoss()
-        optimizer = optim.Adam(self.parameters(), lr=1e-5)  #RTIDS
-        len_x = np.shape(X_input)[0] 
+        optimizer = optim.Adam(self.parameters(), lr=1e-5)  #RTIDS 
         if batch_size>len_x:
             batch_size=len_x
         for epoch in range(num_epochs):
@@ -217,13 +216,13 @@ PATH = "./model_transformer/modele_transformer_2D.pth"
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-X_input = torch.from_numpy(X_input).to(device)
+X_input = torch.from_numpy(X_input)
 Y = torch.from_numpy(Y).to(device)
-
+len_x = np.shape(X_input)[0]
 
 transformer = Transformer(d_model, num_heads, num_layers, d_ff, dropout, d_output, seq_len)
 transformer.to(device)
-transformer.train_model(X_input, Y, batch_size, epochs)
+transformer.train_model(X_input, Y, batch_size, epochs, len_x)
 
 
 torch.save(transformer.state_dict(), PATH)
