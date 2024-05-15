@@ -303,10 +303,10 @@ def train_model(X,Y, epochs=20):
     model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
     model.add(layers.Flatten())
     model.add(layers.Dense(64, activation='relu'))
-    #model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
-    #model.add(layers.Dense(128, activation='relu'))
+    model.add(layers.Dense(128, activation='relu'))
+    model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(64, activation='relu'))
     model.add(layers.Dense(15))
 
@@ -318,7 +318,7 @@ def train_model(X,Y, epochs=20):
                 metrics=['accuracy'])
     #print(sys.getsizeof(model))
     model.fit(X, Y, epochs=epochs)#, batch_size=65536)
-    model.save('./Y_prediction/model_CNN_2D_n0_avg_pooling.h5')
+    model.save('./Y_prediction/model_CNN_2D_n0_avg_pooling_100epochs.h5')
     #model.save('../content/drive/MyDrive/Stage sherbrooke/Model/saved_models/model_dh_30_lr_1e-5
     return model
 
@@ -391,5 +391,5 @@ print("--------------------Fin du chargement des données--------------------")
 
 
 print("--------------------Entrainement du modèle--------------------")
-model = train_model(X_input,Y, epochs=50)
+model = train_model(X_input,Y, epochs=100)
 
