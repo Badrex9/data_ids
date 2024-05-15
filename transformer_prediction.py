@@ -355,13 +355,13 @@ for i in range(1, 10):
 d_output = 15 #Nombre de labels
 d_model = np.shape(X_test)[1]
 seq_len =  np.shape(X_test)[2] #np.shape(X_input)[1] #Longueur du vecteur d'entrée (d_model) normalement 82
-num_heads = 1  #d_model % num_heads == 0, "d_model must be divisible by num_heads"
+num_heads = 2  #d_model % num_heads == 0, "d_model must be divisible by num_heads"
 num_layers = 6 #RTIDS Nombre de répétition des encoders/decoders
 d_ff = 1024 #RTIDS dimension du FFN layer
 dropout = 0.5 #RTIDS
-batch_size = 2048 #RTIDS batch_size = 128
-epochs = 1
-PATH = "./Y_prediction/modele_transformer_2D.pth"
+batch_size = 32 #RTIDS batch_size = 128
+epochs = 50
+PATH = "./model_transformer/modele_transformer_2D.pth"
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 X_test = torch.from_numpy(X_test).to(device)
