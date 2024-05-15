@@ -351,6 +351,7 @@ X_test = np.load('./X_input_split_test_n0/X_input_0.npy')
 for i in range(1, 10):
     X_test = np.concatenate((X_test, np.load('./X_input_split_test_n0/X_input_'+str(i)+'.npy')))
 
+
 d_output = 15 #Nombre de labels
 d_model = np.shape(X_test)[1]
 seq_len =  np.shape(X_test)[2] #np.shape(X_input)[1] #Longueur du vecteur d'entrée (d_model) normalement 82
@@ -360,7 +361,7 @@ d_ff = 1024 #RTIDS dimension du FFN layer
 dropout = 0.5 #RTIDS
 batch_size = 2048 #RTIDS batch_size = 128
 epochs = 1
-PATH = "./Y_prediction/modele_transformer.pth"
+PATH = "./Y_prediction/modele_transformer_2D.pth"
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 X_test = torch.from_numpy(X_test).to(device)
