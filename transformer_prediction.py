@@ -324,12 +324,12 @@ class Transformer(nn.Module):
                 running_loss += self.one_epoch(j, X_input, Y, len_x%batch_size, optimizer, criterion)
             print(f"Epoch: {epoch+1}, Loss: {running_loss}")
     
-    def predict(self, X_test, batch_size):
+    def predict(self, X_test, batch_size, device):
         len_x = np.shape(X_test)[0]
         len_without_rest = len_x - len_x%batch_size
         j=0
         for j in range(0, len_without_rest, batch_size):
-            value = self(X_test[j:j+batch_size].transpose(1,2))
+            value = self(X_test[j:j+batch_size].transpose(1,2).to(device))
             if (j==0):
                 output = torch.argmax(F.softmax(value)[:,0,:], dim = 1)
             else:
@@ -337,7 +337,7 @@ class Transformer(nn.Module):
         #On fait la vision euclidienne car le dernier batch n'est pas forcément pile de la longeur du batch voulue (plus petit)
         reste = len_x%batch_size
         if reste!=0:
-            value = self(X_test[j:j+reste].transpose(1,2))
+            value = self(X_test[j:j+reste].transpose(1,2).to(device))
             if (j==0):
                 output = torch.argmax(F.softmax(value)[:,0,:], dim = 1)
             else: 
@@ -363,7 +363,7 @@ epochs = 50
 PATH = "./model_transformer/modele_transformer_2D.pth"
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-X_test = torch.from_numpy(X_test).to(device)
+X_test = torch.from_numpy(X_test)
 
 
 transformer = Transformer(d_model, num_heads, num_layers, d_ff, dropout, d_output, seq_len).to(device)
