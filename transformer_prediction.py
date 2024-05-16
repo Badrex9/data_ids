@@ -327,10 +327,9 @@ class Transformer(nn.Module):
     def predict(self, X_test, batch_size):
         len_x = np.shape(X_test)[0]
         len_without_rest = len_x - len_x%batch_size
-
         j=0
         for j in range(0, len_without_rest, batch_size):
-            value = self(X_test[j:j+batch_size].view(batch_size, self.seq_len, self.d_model))
+            value = self(X_test[j:j+batch_size].transpose(1,2))
             if (j==0):
                 output = torch.argmax(F.softmax(value)[:,0,:], dim = 1)
             else:
@@ -338,7 +337,7 @@ class Transformer(nn.Module):
         #On fait la vision euclidienne car le dernier batch n'est pas forcément pile de la longeur du batch voulue (plus petit)
         reste = len_x%batch_size
         if reste!=0:
-            value = self(X_test[j:j+reste].view(reste, self.seq_len, self.d_model))
+            value = self(X_test[j:j+reste].transpose(1,2))
             if (j==0):
                 output = torch.argmax(F.softmax(value)[:,0,:], dim = 1)
             else: 
@@ -359,7 +358,7 @@ num_heads = 2  #d_model % num_heads == 0, "d_model must be divisible by num_head
 num_layers = 6 #RTIDS Nombre de répétition des encoders/decoders
 d_ff = 1024 #RTIDS dimension du FFN layer
 dropout = 0.5 #RTIDS
-batch_size = 32 #RTIDS batch_size = 128
+batch_size = 2048 #RTIDS batch_size = 128
 epochs = 50
 PATH = "./model_transformer/modele_transformer_2D.pth"
 
