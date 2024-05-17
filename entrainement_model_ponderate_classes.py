@@ -365,12 +365,26 @@ def train_model_ponderate(X,Y, epochs=20):
     model.summary()
 
     class_weights = generate_class_weights(Y)
-    
+    class_weights = {0:1.,
+                     1:1.,
+                     2:1.,
+                     3:1.,
+                     4:1.,
+                     5:1.,
+                     6:1.,
+                     7:1.,
+                     8:1.,
+                     9:1.,
+                     10:1.,
+                     11:1.,
+                     12:10.,
+                     13:10.,
+                     14:10.}
     model.compile(optimizer=optimizers.Adam(learning_rate=1e-5),
                 loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                 metrics=['accuracy'])
     #print(sys.getsizeof(model))
-    model.fit(X, Y, epochs=epochs, class_weight=class_weights, batch_size=2048)#, batch_size=65536)
+    model.fit(X, Y, epochs=epochs, class_weight=class_weights, batch_size=256)#, batch_size=65536)
     model.save('./Y_prediction/model_ponderate.h5')
     #model.save('../content/drive/MyDrive/Stage sherbrooke/Model/saved_models/model_dh_30_lr_1e-5
     return model
@@ -399,7 +413,7 @@ def train_model(X,Y, epochs=20):
                 metrics=['accuracy'])
     #print(sys.getsizeof(model))
     model.fit(X, Y, epochs=epochs)#, batch_size=65536)
-    model.save('./Y_prediction/model_ponderate.h5')
+    model.save('./Y_prediction/model_ponderate_class_main.h5')
     #model.save('../content/drive/MyDrive/Stage sherbrooke/Model/saved_models/model_dh_30_lr_1e-5
     return model
 
