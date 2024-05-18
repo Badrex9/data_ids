@@ -296,13 +296,13 @@ def getPositionEncoding(seq_len, d, n=10000):
 
 def train_model(X,Y, epochs=20):
     model = models.Sequential()
-    model.add(layers.Conv2D(64, (1,3), activation='relu', input_shape=(d_model,d_historique, 1)))
+    model.add(layers.Conv2D(64, (1,2), activation='relu', input_shape=(d_model,d_historique, 1)))
     model.add(layers.AveragePooling2D((1,2)))
-    model.add(layers.Conv2D(128, (1,3), activation='relu', padding='same'))
+    model.add(layers.Conv2D(128, (1,2), activation='relu', padding='same'))
     model.add(layers.AveragePooling2D((1,2), padding='same'))
-    model.add(layers.Conv2D(128, (1,3), activation='relu', padding='same'))
+    model.add(layers.Conv2D(128, (1,2), activation='relu', padding='same'))
     model.add(layers.Flatten())
-    model.add(layers.Dense(128, activation='relu'))
+    #model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
@@ -391,5 +391,5 @@ print("--------------------Fin du chargement des données--------------------")
 
 
 print("--------------------Entrainement du modèle--------------------")
-model = train_model(X_input,Y, epochs=100)
+model = train_model(X_input,Y, epochs=50)
 
