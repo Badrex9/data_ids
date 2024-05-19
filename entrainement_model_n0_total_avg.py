@@ -296,11 +296,11 @@ def getPositionEncoding(seq_len, d, n=10000):
 
 def train_model(X,Y, epochs=20):
     model = models.Sequential()
-    model.add(layers.Conv2D(64, (1,2), activation='relu', input_shape=(d_model,d_historique, 1)))
+    model.add(layers.Conv2D(64, (1,4), activation='relu', input_shape=(d_model,d_historique, 1)))
     model.add(layers.AveragePooling2D((1,2)))
-    model.add(layers.Conv2D(128, (1,2), activation='relu', padding='same'))
+    model.add(layers.Conv2D(128, (1,4), activation='relu', padding='same'))
     model.add(layers.AveragePooling2D((1,2), padding='same'))
-    model.add(layers.Conv2D(128, (1,2), activation='relu', padding='same'))
+    model.add(layers.Conv2D(128, (1,4), activation='relu', padding='same')) #(1,3) de base
     model.add(layers.Flatten())
     #model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
@@ -317,7 +317,7 @@ def train_model(X,Y, epochs=20):
                 loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                 metrics=['accuracy'])
     #print(sys.getsizeof(model))
-    model.fit(X, Y, epochs=epochs)#, batch_size=65536)
+    model.fit(X, Y, epochs=epochs, batch_size=512)#, batch_size=65536)
     model.save('./Y_prediction/model_total_avg.h5')
     #model.save('../content/drive/MyDrive/Stage sherbrooke/Model/saved_models/model_dh_30_lr_1e-5
     return model
@@ -391,5 +391,5 @@ print("--------------------Fin du chargement des données--------------------")
 
 
 print("--------------------Entrainement du modèle--------------------")
-model = train_model(X_input,Y, epochs=50)
+model = train_model(X_input,Y, epochs=100)
 
