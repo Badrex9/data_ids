@@ -126,7 +126,7 @@ class MyViT(nn.Module):
 #print("--------------------Chargement des données train--------------------")
 X_input = np.load('./X_input_split_train_n0/X_input_0.npy')
 d_model = np.shape(X_input)[1]
-for i in range(1, 2):
+for i in range(1, 20):
     X_input = np.concatenate((X_input, np.load('./X_input_split_train_n0/X_input_'+str(i)+'.npy')))
 Y = np.load('./X_input_split_train/Y.npy')
 #print("--------------------Fin du chargement des données--------------------")nction de l'entrée----------------------------------
@@ -154,8 +154,8 @@ model = MyViT(batch_size, np.shape(X_input)[1], np.shape(X_input)[1], d_historiq
 N_EPOCHS = 5
 LR = 0.0005
 
-X_input = torch.from_numpy(X_input).to(device)
-Y = torch.from_numpy(Y).to(device)
+X_input = torch.from_numpy(X_input)
+Y = torch.from_numpy(Y)
 
 # Training loop
 optimizer = Adam(model.parameters(), lr=LR)
@@ -166,8 +166,8 @@ for epoch in range(N_EPOCHS):#, desc="Training"):
     train_loss = 0.0
     len_without_rest = len_x - len_x%batch_size
     for j in tqdm(range(0, len_without_rest, batch_size), desc=f"Epoch {epoch + 1} in training", leave=False):
-        x = X_input[j:j+batch_size].transpose(1,2)  #.view(batch_size, self.seq_len, self.d_model)
-        y = Y[j:j+batch_size]
+        x = X_input[j:j+batch_size].transpose(1,2).to(device)  #.view(batch_size, self.seq_len, self.d_model)
+        y = Y[j:j+batch_size].to(device)
         y_hat = model(x)
         loss = criterion(y_hat, y)
         train_loss += loss.detach().cpu().item() / len_x%batch_size
