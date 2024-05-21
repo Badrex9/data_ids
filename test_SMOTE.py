@@ -395,7 +395,25 @@ for k,v in counter.items():
 	per = v / len(Y) * 100
 	print('Class=%d, n=%d (%.3f%%)' % (k, v, per))
  
-oversample = SMOTE(sampling_strategy='minority')
+
+Values_counter = {0: 1589923, 
+                  1: 1369, 
+                  2: 89617, 
+                  3: 7205, 
+                  4: 161087, 
+                  5: 3849, 
+                  6: 4057, 
+                  7: 5555,
+                  8: 1000,         #8 de base, on change 
+                  9: 1000,        #25 de base, on change 
+                  10: 111163,
+                  11: 4128,
+                  12: 1055,
+                  13: 1000,       #15 de base, on change 
+                  14: 1000,      #456 de base, on change 
+                  }
+ 
+oversample = SMOTE(sampling_strategy=Values_counter)
 X, Y = oversample.fit_resample(X, Y)
 
 counter = Counter(Y)
