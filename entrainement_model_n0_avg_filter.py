@@ -296,18 +296,18 @@ def getPositionEncoding(seq_len, d, n=10000):
 
 def train_model(X,Y, epochs=20):
     model = models.Sequential()
-    model.add(layers.Conv2D(64, (1,3), activation='relu', input_shape=(d_model,d_historique, 1)))
+    model.add(layers.Conv2D(128, (1,2), activation='relu', input_shape=(d_model,d_historique, 1)))
     model.add(layers.AveragePooling2D((1,2)))
-    model.add(layers.Conv2D(128, (1,3), activation='relu', padding='same'))
+    model.add(layers.Conv2D(128, (1,2), activation='relu', padding='same'))
     model.add(layers.AveragePooling2D((1,2), padding='same'))
-    model.add(layers.Conv2D(128, (1,3), activation='relu', padding='same'))
+    model.add(layers.Conv2D(128, (1,2), activation='relu', padding='same'))
     model.add(layers.Flatten())
-    model.add(layers.Dense(64, activation='relu'))
+    model.add(layers.Dense(128, activation='relu'))
     #model.add(layers.Dense(128, activation='relu'))
     #model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
-    model.add(layers.Dense(64, activation='relu'))
+    model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(15))
 
     model.summary()
@@ -317,8 +317,8 @@ def train_model(X,Y, epochs=20):
                 loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                 metrics=['accuracy'])
     #print(sys.getsizeof(model))
-    model.fit(X, Y, epochs=epochs)#, batch_size=65536)
-    model.save('./Y_prediction/model_CNN_2D_n0_avg_filter.h5')
+    model.fit(X, Y, epochs=epochs, batch_size=256)#, batch_size=65536)
+    model.save('./Y_prediction/model_2D_cnn_smote.h5')
     #model.save('../content/drive/MyDrive/Stage sherbrooke/Model/saved_models/model_dh_30_lr_1e-5
     return model
 
@@ -382,11 +382,11 @@ def main():
 d_historique = 20
 
 print("--------------------Chargement des données train--------------------")
-X_input = np.load('./X_input_split_train_n0/X_input_0.npy')
+X_input = np.load('./X_input_split_train_no0_smote/X_input_0.npy')
 d_model = np.shape(X_input)[1]
 for i in range(1, 20):
-    X_input = np.concatenate((X_input, np.load('./X_input_split_train_n0/X_input_'+str(i)+'.npy')))
-Y = np.load('./X_input_split_train_n0/Y.npy')
+    X_input = np.concatenate((X_input, np.load('./X_input_split_train_no0_smote/X_input_'+str(i)+'.npy')))
+Y = np.load('./X_input_split_train/Y_no0_smote.npy')
 print("--------------------Fin du chargement des données--------------------")
 
 
