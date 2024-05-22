@@ -138,7 +138,7 @@ num_heads = 1  #d_model % num_heads == 0, "d_model must be divisible by num_head
 num_layers = 6 #RTIDS Nombre de répétition des encoders/decoders
 d_ff = 1024 #RTIDS dimension du FFN layer
 dropout = 0.5 #RTIDS
-batch_size = 256 #RTIDS batch_size = 128
+batch_size = 128 #RTIDS batch_size = 128
 PATH = "./model_transformer/modele_transformer_2D.pth"
 LR = 1e-5
 
@@ -148,7 +148,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Using device: ", device, f"({torch.cuda.get_device_name(device)})" if torch.cuda.is_available() else "")
 
 # batch_size, d_pacquet, d_model, d_historique, out_d, n_heads, n_blocks
-model = MyViT(batch_size, np.shape(X_test)[1], np.shape(X_test)[1], d_historique, d_output, num_heads, num_layers, d_ff).to(device)
+model = MyViT(batch_size, np.shape(X_test)[1], np.shape(X_test)[1], d_historique, d_output, num_heads, num_layers, d_ff) #.to(device)
 N_EPOCHS = 5
 LR = 0.0005
 
@@ -160,7 +160,7 @@ len_x = np.shape(X_test)[0]
 len_without_rest = len_x - len_x%batch_size
 j=0
 for j in tqdm(range(0, len_without_rest, batch_size), desc=f"Predici {1}", leave=False):
-    x = X_test[j:j+batch_size].transpose(1,2).to(device)
+    x = X_test[j:j+batch_size].transpose(1,2) #.to(device)
     value = model(x)
     if (j==0):
         output = value
