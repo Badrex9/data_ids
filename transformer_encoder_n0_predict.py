@@ -162,11 +162,19 @@ j=0
 for j in tqdm(range(0, len_without_rest, batch_size), desc=f"Predict {1}", leave=False):
     x = X_test[j:j+batch_size].transpose(1,2).to(device)
     value = model(x)
-    del x
     if (j==0):
         output = value
     else:
         output = torch.cat((output, value), 0)
+    param_size = 0
+    for param in model.parameters():
+        param_size += param.nelement() * param.element_size()
+    buffer_size = 0
+    for buffer in model.buffers():
+        buffer_size += buffer.nelement() * buffer.element_size()
+
+    size_all_mb = (param_size + buffer_size) / 1024**2
+    print('model size: {:.3f}MB'.format(size_all_mb))
 #On fait la vision euclidienne car le dernier batch n'est pas forcément pile de la longeur du batch voulue (plus petit)
 reste = len_x%batch_size
 if reste!=0:
