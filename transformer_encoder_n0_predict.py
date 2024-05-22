@@ -160,7 +160,8 @@ len_x = np.shape(X_test)[0]
 len_without_rest = len_x - len_x%batch_size
 j=0
 for j in tqdm(range(0, len_without_rest, batch_size), desc=f"Predici {1}", leave=False):
-    value = model(X_test[j:j+batch_size].transpose(1,2).to(device))
+    x = X_test[j:j+batch_size].transpose(1,2).to(device)
+    value = model(x)
     if (j==0):
         output = value
     else:
@@ -168,7 +169,8 @@ for j in tqdm(range(0, len_without_rest, batch_size), desc=f"Predici {1}", leave
 #On fait la vision euclidienne car le dernier batch n'est pas forcément pile de la longeur du batch voulue (plus petit)
 reste = len_x%batch_size
 if reste!=0:
-    value = model(X_test[j:j+reste].transpose(1,2).to(device))
+    x = X_test[j:j+batch_size].transpose(1,2).to(device)
+    value = model(x)
     if (j==0):
         output = value
     else: 
