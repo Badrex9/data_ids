@@ -418,8 +418,8 @@ Values_counter = {0: 1589923,
  
 oversample = SMOTE(sampling_strategy=Values_counter)
 
-X = np.concatenate((X, source_ip), axis=1)
-X = np.concatenate((X, dest_ip), axis=1)
+X = np.concatenate((X, np.vstack(source_ip)), axis=1)
+X = np.concatenate((X, np.vstack(dest_ip)), axis=1)
 X, Y = oversample.fit_resample(X, Y)
 
 dest_ip = np.vstack(X[:,-1])
