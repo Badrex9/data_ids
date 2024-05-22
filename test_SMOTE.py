@@ -424,9 +424,9 @@ X = np.concatenate((X, np.vstack(source_ip)), axis=1)
 X = np.concatenate((X, np.vstack(dest_ip)), axis=1)
 X, Y = oversample.fit_resample(X, Y)
 
-dest_ip = np.vstack(X[:,-1])
+dest_ip = X[:,-1].astype(int)
 X = X[:,:-1]
-source_ip = np.vstack(X[:,-1])
+source_ip = X[:,-1].astype(int)
 X = X[:,:-1]
 
 print("Source_ip: ", source_ip)
