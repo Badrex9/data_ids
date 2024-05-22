@@ -407,13 +407,13 @@ Values_counter = {0: 1589923,
                   5: 3849, 
                   6: 4057, 
                   7: 5555,
-                  8: 1000,         #8 de base, on change 
-                  9: 1000,        #25 de base, on change 
+                  8: 30,         #8 de base, on change 
+                  9: 75,        #25 de base, on change 
                   10: 111163,
                   11: 4128,
                   12: 1055,
-                  13: 1000,       #15 de base, on change 
-                  14: 1000,      #456 de base, on change 
+                  13: 45,       #15 de base, on change 
+                  14: 1500,      #456 de base, on change 
                   }
  
 oversample = SMOTE(sampling_strategy=Values_counter)
