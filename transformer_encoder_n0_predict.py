@@ -154,13 +154,13 @@ LR = 0.0005
 
 model.load_state_dict(torch.load(PATH, map_location=torch.device('cpu')), strict=False)
 
-X_input = torch.from_numpy(X_test).to(device)
+X_test = torch.from_numpy(X_test)
 
 len_x = np.shape(X_test)[0]
 len_without_rest = len_x - len_x%batch_size
 j=0
 for j in tqdm(range(0, len_without_rest, batch_size), desc=f"Predici {1}", leave=False):
-    value = model(X_test[j:j+batch_size].transpose(1,2))
+    value = model(X_test[j:j+batch_size].transpose(1,2).to(device))
     if (j==0):
         output = value
     else:
@@ -168,7 +168,7 @@ for j in tqdm(range(0, len_without_rest, batch_size), desc=f"Predici {1}", leave
 #On fait la vision euclidienne car le dernier batch n'est pas forcément pile de la longeur du batch voulue (plus petit)
 reste = len_x%batch_size
 if reste!=0:
-    value = model(X_test[j:j+reste].transpose(1,2))
+    value = model(X_test[j:j+reste].transpose(1,2).to(device))
     if (j==0):
         output = value
     else: 
