@@ -148,11 +148,11 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Using device: ", device, f"({torch.cuda.get_device_name(device)})" if torch.cuda.is_available() else "")
 
 # batch_size, d_pacquet, d_model, d_historique, out_d, n_heads, n_blocks
-model = MyViT(batch_size, np.shape(X_test)[1], np.shape(X_test)[1], d_historique, d_output, num_heads, num_layers, d_ff) #.to(device)
+model = MyViT(batch_size, np.shape(X_test)[1], np.shape(X_test)[1], d_historique, d_output, num_heads, num_layers, d_ff).to(device)
 N_EPOCHS = 5
 LR = 0.0005
 
-model.load_state_dict(torch.load(PATH, map_location=torch.device('cpu')), strict=False)
+model.load_state_dict(torch.load(PATH, map_location=torch.device('cpu')))
 
 X_test = torch.from_numpy(X_test)
 
@@ -160,7 +160,7 @@ len_x = np.shape(X_test)[0]
 len_without_rest = len_x - len_x%batch_size
 j=0
 for j in tqdm(range(0, len_without_rest, batch_size), desc=f"Predici {1}", leave=False):
-    x = X_test[j:j+batch_size].transpose(1,2) #.to(device)
+    x = X_test[j:j+batch_size].transpose(1,2).to(device)
     value = model(x)
     if (j==0):
         output = value
