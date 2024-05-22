@@ -417,7 +417,15 @@ Values_counter = {0: 1589923,
                   }
  
 oversample = SMOTE(sampling_strategy=Values_counter)
+
+X = np.concatenate((X, source_ip), axis=1)
+X = np.concatenate((X, dest_ip), axis=1)
 X, Y = oversample.fit_resample(X, Y)
+
+dest_ip = np.vstack(X[:,-1])
+X = X[:,:-1]
+source_ip = np.vstack(X[:,-1])
+X = X[:,-1]
 
 counter = Counter(Y)
 for k,v in counter.items():
@@ -429,7 +437,6 @@ for k,v in counter.items():
 d_model = np.shape(X)[1]
 d_historique = 20
 X_input = transformation_2D(X, source_ip, dest_ip)
-X_input_test = transformation_2D(X_test, source_ip_test, dest_ip_test)
 
 
 #print("--------------------Ajout positional encoding--------------------")
@@ -451,8 +458,8 @@ X_input_test = transformation_2D(X_test, source_ip_test, dest_ip_test)
 #print("--------------------Fin positional encoding--------------------")
 
 
-split_npy_save(X_input_test, 10, 'X_input_split_test_no0_smote')
+#split_npy_save(X_input_test, 10, 'X_input_split_test_no0_smote')
 split_npy_save(X_input, 20, 'X_input_split_train_no0_smote')
-np.save('./X_input_split_test/Y_test.npy_no0_smote', Y_test)
-np.save('./X_input_split_train/Y.npy_no0_smote', Y)
+#np.save('./X_input_split_test/Y_test.npy_no0_smote', Y_test)
+np.save('./X_input_split_train/Y_no0_smote.npy', Y)
 
