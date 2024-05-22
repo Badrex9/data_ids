@@ -138,7 +138,7 @@ num_heads = 1  #d_model % num_heads == 0, "d_model must be divisible by num_head
 num_layers = 6 #RTIDS Nombre de répétition des encoders/decoders
 d_ff = 1024 #RTIDS dimension du FFN layer
 dropout = 0.5 #RTIDS
-batch_size = 32 #RTIDS batch_size = 128
+batch_size = 128 #RTIDS batch_size = 128
 PATH = "./model_transformer/modele_transformer_2D.pth"
 LR = 1e-5
 
@@ -166,15 +166,7 @@ for j in tqdm(range(0, len_without_rest, batch_size), desc=f"Predict {1}", leave
         output = value
     else:
         output = torch.cat((output, value), 0)
-    param_size = 0
-    for param in model.parameters():
-        param_size += param.nelement() * param.element_size()
-    buffer_size = 0
-    for buffer in model.buffers():
-        buffer_size += buffer.nelement() * buffer.element_size()
-
-    size_all_mb = (param_size + buffer_size) / 1024**2
-    print('model size: {:.3f}MB'.format(size_all_mb))
+    print(output.size())
 #On fait la vision euclidienne car le dernier batch n'est pas forcément pile de la longeur du batch voulue (plus petit)
 reste = len_x%batch_size
 if reste!=0:
