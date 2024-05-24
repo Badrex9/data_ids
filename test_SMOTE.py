@@ -399,21 +399,21 @@ for k,v in counter.items():
 	print('Class=%d, n=%d (%.3f%%)' % (k, v, per))
  
 
-Values_counter = {0: 1589923, 
-                  1: 1369, 
-                  2: 89617, 
-                  3: 7205, 
-                  4: 161087, 
-                  5: 3849, 
-                  6: 4057, 
-                  7: 5555,
-                  8: 30,         #8 de base, on change 
-                  9: 75,        #25 de base, on change 
-                  10: 111163,
-                  11: 4128,
-                  12: 1055,
-                  13: 45,       #15 de base, on change 
-                  14: 1500,      #456 de base, on change 
+Values_counter = {0: 794961, #1589923
+                  1: 684, #1369
+                  2: 44808, #89617
+                  3: 3602, #7205
+                  4: 80543, #161087
+                  5: 1924, #3849
+                  6: 2028, #4057
+                  7: 2777, #5555
+                  8: 8,         #8 de base, on change 
+                  9: 25,        #25 de base, on change 
+                  10: 55581, #111163
+                  11: 2064, #4128
+                  12: 529, #1055
+                  13: 15,       #15 de base, on change 
+                  14: 50000,      #456 de base, on change 
                   }
  
 oversample = SMOTE(sampling_strategy=Values_counter)
