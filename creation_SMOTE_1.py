@@ -463,7 +463,7 @@ X_input = transformation_2D(X, source_ip, dest_ip)
 
 
 #split_npy_save(X_input_test, 10, 'X_input_split_test_no0_smote')
-split_npy_save(X_input, 20, 'X_input_split_train_no0_smote')
+split_npy_save(X_input, 20, 'X_input_split_train_n0_smote_1')
 #np.save('./X_input_split_test/Y_test.npy_no0_smote', Y_test)
-np.save('./X_input_split_train/Y_no0_smote.npy', Y)
+np.save('./X_input_split_train/Y_n0_smote_1.npy', Y)
 
