@@ -151,7 +151,7 @@ print("Using device: ", device, f"({torch.cuda.get_device_name(device)})" if tor
 
 # batch_size, d_pacquet, d_model, d_historique, out_d, n_heads, n_blocks
 model = MyViT(batch_size, np.shape(X_input)[1], np.shape(X_input)[1], d_historique, d_output, num_heads, num_layers, d_ff).to(device)
-N_EPOCHS = 5
+N_EPOCHS = 1
 LR = 0.0005
 
 X_input = torch.from_numpy(X_input)
@@ -165,13 +165,13 @@ if batch_size>len_x:
 for epoch in range(N_EPOCHS):#, desc="Training"):
     train_loss = 0.0
     len_without_rest = len_x - len_x%batch_size
+    optimizer.zero_grad()
     for j in tqdm(range(0, len_without_rest, batch_size), desc=f"Epoch {epoch + 1} in training", leave=False):
         x = X_input[j:j+batch_size].transpose(1,2).to(device)  #.view(batch_size, self.seq_len, self.d_model)
         y = Y[j:j+batch_size].to(device)
         y_hat = model(x)
         loss = criterion(y_hat, y)
         train_loss += loss.detach().cpu().item() / len_x%batch_size
-        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
     print(f"Epoch {epoch + 1}/{N_EPOCHS} loss: {train_loss:.2f}")
