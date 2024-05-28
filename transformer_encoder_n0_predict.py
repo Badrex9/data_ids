@@ -165,18 +165,18 @@ for j in tqdm(range(0, len_without_rest, batch_size), desc=f"Predict {1}", leave
     x = X_test[j:j+batch_size].transpose(1,2).to(device)
     value = model(x)
     if (j==0):
-        output = torch.argmax(F.softmax(value), dim=1)
+        output = torch.topk(F.softmax(value), 1).indices.view(batch_size)
     else:
-        output = torch.cat((output, torch.argmax(F.softmax(value), dim=1)), 0)
+        output = torch.cat((output, torch.topk(F.softmax(value), 1).indices.view(batch_size)), 0)
 #On fait la vision euclidienne car le dernier batch n'est pas forcément pile de la longeur du batch voulue (plus petit)
 reste = len_x%batch_size
 if reste!=0:
     x = X_test[j:j+batch_size].transpose(1,2).to(device)
     value = model(x)
     if (j==0):
-        output = torch.argmax(F.softmax(value), dim=1)
+        output = torch.topk(F.softmax(value), 1).indices.view(batch_size)
     else: 
-        output = torch.cat((output, torch.argmax(F.softmax(value), dim=1)), 0)
+        output = torch.cat((output, torch.topk(F.softmax(value), 1).indices.view(batch_size)), 0)
 
 output = output.cpu().numpy()
 
