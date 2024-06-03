@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 # Encoder
 
 # Define input shape and latent dimension
-latent_dim = 32
+latent_dim = 2
 input_shape = (82, 20, 1)
 # Encoder network
 inputs = Input(shape=input_shape)
@@ -55,6 +55,7 @@ vae = Model(inputs, outputs, name='vae')
 encoder.summary()
 vae.summary()
 
+
 # Define the VAE loss function
 reconstruction_loss = mse(K.flatten(inputs), K.flatten(outputs))
 reconstruction_loss *= input_shape[0] * input_shape[1] * input_shape[2]
@@ -62,10 +63,8 @@ kl_loss = -0.5 * K.sum(1 + z_log_var - K.square(z_mean) - K.exp(z_log_var), axis
 B = 1000   
 vae_loss = K.mean(B * reconstruction_loss + kl_loss)
 vae.add_loss(vae_loss)
-
 vae.add_metric(kl_loss, name="kl_loss")
 vae.add_metric(reconstruction_loss, name="reconstruction_loss")
-
 vae.compile(optimizer='adam')
 
 Y_label = 1
