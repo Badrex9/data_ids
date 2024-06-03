@@ -25,8 +25,8 @@ x = Flatten()(x)
 z_mean = Dense(latent_dim)(x)
 z_log_var = Dense(latent_dim)(x)
 
-
 # Sampling function
+@tf.function
 def sampling(args):
     z_mean, z_log_var = args
     epsilon = K.random_normal(shape=(K.shape(z_mean)[0], latent_dim))
@@ -45,16 +45,11 @@ x = Conv2DTranspose(32, (2, 2), activation='relu', padding='same', )(x)
 x = Conv2DTranspose(16, (2, 2), activation='relu', padding='same', )(x)
 x = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
 
-
 # Define the VAE model
 encoder = Model(inputs, [z_mean, z_log_var, z], name='encoder')
 decoder = Model(decoder_input, x, name='decoder')
 outputs = decoder(encoder(inputs)[2])
 vae = Model(inputs, outputs, name='vae')
-
-encoder.summary()
-vae.summary()
-
 
 # Define the VAE loss function
 reconstruction_loss = mse(K.flatten(inputs), K.flatten(outputs))
@@ -67,9 +62,13 @@ vae.add_metric(kl_loss, name="kl_loss")
 vae.add_metric(reconstruction_loss, name="reconstruction_loss")
 vae.compile(optimizer='adam')
 
-Y_label = 1
+decoder.summary()
 
-dataset_to_augment = np.load('./X_labels/X_label_' + str(Y_label) +'.npy')
+Y_label = 12
+
+dataset_to_augment = np.load('./X_class_' + str(Y_label) +'.npy')
+
+print(np.shape(dataset_to_augment))
 
 vae.fit(dataset_to_augment, epochs=500, batch_size=256)
 
