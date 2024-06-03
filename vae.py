@@ -68,8 +68,17 @@ vae.add_metric(reconstruction_loss, name="reconstruction_loss")
 
 vae.compile(optimizer='adam')
 
-Y_label = 13
+Y_label = 1
 
 dataset_to_augment = np.load('./X_labels/X_label_' + str(Y_label) +'.npy')
 
 vae.fit(dataset_to_augment, epochs=500, batch_size=256)
+
+num_samples = 99
+random_latent_vectors  = np.random.random((num_samples, 82, 20, 1))
+random_latent_vectors = np.concatenate((np.zeros((1,82,20,1)),random_latent_vectors))
+
+decoded_imgs = vae.predict(random_latent_vectors)
+
+np.save('./generate/X_generate_' + str(Y_label) + '.npy', decoded_imgs)
+np.save('./generate/X_true_' + str(Y_label) + '.npy', dataset_to_augment[:100])
