@@ -81,6 +81,7 @@ num_samples = 8191
 random_latent_vectors  = np.random.random((num_samples, 82, 20, 1))
 random_latent_vectors = np.concatenate((np.zeros((1,82,20,1)),random_latent_vectors))
 decoded_imgs = vae.predict(random_latent_vectors, batch_size=batch_size)
+print(decoded_imgs)
 np.save('./generate/X_generate_' + str(label) + '.npy', decoded_imgs)
 
 
