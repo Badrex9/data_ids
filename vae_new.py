@@ -24,7 +24,7 @@ hidden_dim = 2
 batch_size = 128
 
 
-label = 12
+label = 13
 
 input_shape = (82, 20, 1)
 input_image = Input(shape=input_shape)
@@ -77,12 +77,27 @@ vae.fit(dataset_to_augment,dataset_to_augment,
         shuffle=True
     )
 
-num_samples = 8191
-random_latent_vectors  = np.random.random((num_samples, 82, 20, 1))
-random_latent_vectors = np.concatenate((np.zeros((1,82,20,1)),random_latent_vectors))
-decoded_imgs = vae.predict(random_latent_vectors, batch_size=batch_size)
-print(decoded_imgs)
-np.save('./generate/X_generate_' + str(label) + '.npy', decoded_imgs)
+#num_samples = 8191
+#random_latent_vectors  = np.random.random((num_samples, 82, 20, 1))
+#random_latent_vectors = np.concatenate((np.zeros((1,82,20,1)),random_latent_vectors))
+
+from tqdm import tqdm 
+scale = 5   #5
+n = 128  #128
+
+prediction = []
+
+grid_x = np.linspace(-scale, scale, n)
+grid_y = np.linspace(-scale, scale, n)[::-1]
+
+for i, yi in tqdm(enumerate(grid_y)):
+    for j, xi in enumerate(grid_x):
+        sample = np.array([[xi, yi]])
+        x_decoded = decoder.predict(sample, verbose=0)
+        prediction.append(x_decoded.reshape(82,20))
+
+print(np.shape(prediction))
+np.save('./generate/X_generate_latent_' + str(label) + '.npy', prediction)
 
 
 
