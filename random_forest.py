@@ -10,6 +10,7 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_s
 import glob
 import random
 from sklearn.model_selection import train_test_split
+import joblib
 
 def importation_csv():
     # Get a list of all CSV files in a directory
@@ -87,6 +88,8 @@ rfc = RandomForestClassifier(random_state=0)
 
 # fit the model
 rfc.fit(X, Y)
+
+joblib.dump(rfc, "./Y_prediction/random_forest.joblib")
 
 # Predict the Test set results
 y_pred = rfc.predict(X_test)
