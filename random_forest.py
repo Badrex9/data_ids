@@ -89,9 +89,30 @@ rfc = RandomForestClassifier(random_state=0)
 # fit the model
 rfc.fit(X, Y)
 
-joblib.dump(rfc, "./Y_prediction/random_forest.joblib")
+
+Y_new = []
+
+for label in Y:
+    if label==12 or label==13 or label==14:
+        Y_new.append(12)
+    else:
+        Y_new.append(label)
+
+Y = Y_new
+
+Y_new = []
+
+for label in Y_test:
+    if label==12 or label==13 or label==14:
+        Y_new.append(12)
+    else:
+        Y_new.append(label)
+
+Y_test = Y_new
+
+joblib.dump(rfc, "./Y_prediction/random_forest_WEB_ATTACK.joblib")
 
 # Predict the Test set results
 y_pred = rfc.predict(X_test)
 
-np.save('./Y_prediction/Y_random_forest.npy', y_pred)
+np.save('./Y_prediction/Y_random_forest_WEB_ATTACK.npy', y_pred)
