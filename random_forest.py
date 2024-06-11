@@ -86,10 +86,6 @@ from sklearn.ensemble import RandomForestClassifier
 # instantiate the classifier 
 rfc = RandomForestClassifier(random_state=0)
 
-# fit the model
-rfc.fit(X, Y)
-
-
 Y_new = []
 
 for label in Y:
@@ -99,6 +95,9 @@ for label in Y:
         Y_new.append(label)
 
 Y = Y_new
+
+# fit the model
+rfc.fit(X, Y)
 
 Y_new = []
 
