@@ -383,7 +383,8 @@ counter = Counter(Y)
 for k,v in counter.items():
 	per = v / len(Y) * 100
 	print('Class=%d, n=%d (%.3f%%)' % (k, v, per))
- 
+
+
 
 Values_counter = {0: 1589923, #1589923
                   1: 1369, #1369
@@ -404,7 +405,15 @@ Values_counter = {0: 1589923, #1589923
  
 oversample = SMOTE(sampling_strategy=Values_counter)
 
+dim1 = np.shape(X_input)[0]
+dim2 = np.shape(X_input)[1]
+dim3 = np.shape(X_input)[2]
+
+X_input = X_input.reshape((dim1, dim2*dim3))
+
 X_input, Y = oversample.fit_resample(X_input, Y)
+
+X_input = X_input.reshape((dim1, dim2, dim3))
 
 model = load_model('./Y_prediction/model_CNN_2D_n0_avg_filter_new_data.h5')
 
