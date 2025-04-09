@@ -165,8 +165,8 @@ def train_vae(x, y, d, batch_size, epochs, k):
  
 
     def vae_loss(x, y, h_batch, label, cluster_centers, sigma2_per_class, mean, log_var, lambda_kl):
-        x = tf.reshape(x, shape=(tf.shape(x)[0], 28 * 28))
-        y = tf.reshape(y, shape=(tf.shape(y)[0], 28 * 28))
+        #x = tf.reshape(x, shape=(tf.shape(x)[0], 28 * 28)) #variable en 1D
+        #y = tf.reshape(y, shape=(tf.shape(y)[0], 28 * 28))
 
         bce_loss_fn = tf.keras.losses.BinaryCrossentropy(from_logits=False, reduction="none")
         recon_loss = tf.reduce_sum(bce_loss_fn(x, y), axis=-1)
@@ -180,47 +180,45 @@ def train_vae(x, y, d, batch_size, epochs, k):
 
     from tensorflow.keras.layers import Conv2D, Conv2DTranspose
     # --- Construction du VAE ---
-    input_shape = (28, 28, 1)
+    input_dim = (tf.shape(x)[1]) #On est toujours en 1D
 
-    input_image = Input(shape=input_shape)
-    x_enc = Conv2D(64, kernel_size=3, strides=1, padding="valid", activation="relu")(input_image)
-    x_enc = Conv2D(64, kernel_size=3, strides=1, padding="valid", activation="relu")(x_enc)
-    x_enc = Conv2D(64, kernel_size=3, strides=1, padding="valid", activation="relu")(x_enc)
+    input_tabular = Input(shape=input_dim)
 
-    x_enc = Conv2D(128, kernel_size=3, padding="valid", activation="relu")(x_enc)
-    x_enc = Conv2D(128, kernel_size=3, strides=1, padding="valid", activation="relu")(x_enc)
-    x_enc = Conv2D(128, kernel_size=3, strides=1, padding="valid", activation="relu")(x_enc)
+    x_enc = Dense(512, activation="relu")(input_tabular)
+    x_enc = BatchNormalization()(x_enc)
+    x_enc = Dropout(0.3)(x_enc)
 
-    x_enc = Conv2D(256, kernel_size=3, padding="valid", activation="relu")(x_enc)
+    x_enc = Dense(256, activation="relu")(x_enc)
+    x_enc = BatchNormalization()(x_enc)
+    x_enc = Dropout(0.3)(x_enc)
 
-    # 🔥 Passage en FCN (Fully Connected)
-    x_enc = Flatten()(x_enc)
-
-    x_enc = Dense(512, activation="relu")(x_enc)
-    x_enc = Dropout(0.3)(BatchNormalization()(x_enc))
-
-    x_enc = Dense(512, activation="relu")(x_enc)
-    x_enc = Dropout(0.5)(BatchNormalization()(x_enc))
+    x_enc = Dense(128, activation="relu")(x_enc)
+    x_enc = BatchNormalization()(x_enc)
 
     mean = Dense(d)(x_enc)
     log_var = Dense(d)(x_enc)
     h = Lambda(noiser, name="latent_space", output_shape=(d,))([mean, log_var])
 
-    input_decoder = Input(shape=(d,))  # d = 10
-    d_dec = Dense(28 * 28 * 256, activation='relu')(input_decoder)  # Start with 256 channels
-    d_dec = Reshape((28, 28, 256))(d_dec)  # Shape: (28, 28, 256)
-    d_dec = Conv2D(128, kernel_size=3, padding='same', activation='relu')(d_dec)  # Reduce to 128 channels
-    d_dec = Conv2D(64, kernel_size=3, padding='same', activation='relu')(d_dec)   # Reduce to 64 channels
-    d_dec = Conv2D(32, kernel_size=3, padding='same', activation='relu')(d_dec)   # Reduce to 32 channels
-    decoded = Conv2D(1, kernel_size=3, padding='same', activation='sigmoid', name='decoder_output')(d_dec)  # Output: (28, 28, 1)
+    input_decoder = Input(shape=(d,))  
+    d_dec = Dense(128, activation="relu")(input_decoder)
+    d_dec = BatchNormalization()(d_dec)
 
-    encoder = Model(input_image, [mean, log_var, h], name="encoder")
+    d_dec = Dense(256, activation="relu")(d_dec)
+    d_dec = BatchNormalization()(d_dec)
+
+    d_dec = Dense(512, activation="relu")(d_dec)
+    d_dec = BatchNormalization()(d_dec)
+
+    decoded = Dense(input_dim, activation="sigmoid", name="decoder_output")(d_dec)
+    
+    encoder = Model(input_tabular, [mean, log_var, h], name="encoder")
     decoder = Model(input_decoder, decoded, name="decoder")
+    encoder.summary()
     decoder.summary()
-    _, _, h_encoded = encoder(input_image)
+    _, _, h_encoded = encoder(input_tabular)
     vae_output = decoder(h_encoded)
 
-    vae = Model(input_image, vae_output, name="vae")
+    vae = Model(input_tabular, vae_output, name="vae")
     optimizer = Adam(learning_rate=5e-4)
 
 
@@ -274,11 +272,11 @@ def train_vae(x, y, d, batch_size, epochs, k):
         batch_x = x[j:j+batch_size].astype("float32")
         _, _, h_batch = encoder(batch_x, training=False)  # Pas d'entraînement
         recon_batch = decoder(h_batch, training=False)  # Sortie initiale X'
-        X_prime_samples.append(recon_batch.numpy().reshape(-1, 28 * 28))
+        X_prime_samples.append(recon_batch.numpy())
 
     X_prime_samples = np.concatenate(X_prime_samples, axis=0)
 
-    X_flat = x.reshape(-1, 28 * 28)  # Mise en forme de X
+    X_flat = x  # Mise en forme de X
 
     # ---- Calcul des moyennes et variances sur X et X' ----
     E_X = np.mean(X_flat, axis=0)  # Moyenne sur chaque coordonnée j
@@ -303,15 +301,6 @@ def train_vae(x, y, d, batch_size, epochs, k):
     # optimized_points = update_cluster_centers(optimized_points, lambda_kl, final_R)
     cluster_centers = tf.constant(optimized_points.astype(np.float32))  
 
-    # --- Ajustement dynamique de lambda_kl ---
-    def adaptive_lambda_kl(loss_history, lambda_kl_0, beta=0.01, penalty_factor=1):
-        if len(loss_history) < 2:
-            return lambda_kl_0  # Retourne la valeur initiale si pas assez de données
-        
-        # Calcul de la dérivée de la loss (différence entre deux moyennes glissantes)
-        loss_diff = loss_history[-1] - loss_history[-2]
-        #return lambda_kl_0 / (1 + penalty_factor * tf.exp(-beta * loss_diff))
-        return 0.0001
     # --- Phase 2 : Entraînement du VAE ---
     @tf.function
     def train_step(batch_x, batch_y, lambda_kl, lambda_cycle=0.1, train_decoder_only=False):
@@ -381,22 +370,31 @@ def train_vae(x, y, d, batch_size, epochs, k):
         cycle_history.append(np.mean(epoch_cycle_losses))  # Ajout ici
 
         print(f"Epoch {epoch+1:2d} | Total: {loss_history[-1]:.4f} | Recon: {recon_history[-1]:.4f} | KL: {kl_history[-1]:.4f} | Cycle: {cycle_history[-1]:.4f} | Lambda_KL: {lambda_kl:.6f} | Decoder Only: {train_decoder_only}")
-    return encoder, decoder, cluster_centers
+    return encoder, decoder, cluster_centers, sigma2_per_class_var
 
 
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
 from tensorflow.keras.datasets import mnist
 from sklearn.utils import shuffle
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
-x_train_new = np.load(f"./mnist/mnist_x_train.npy")
-y_train_new = np.load(f"./mnist/mnist_y_train.npy")
 
-# ==========================
-# Réorganiser les données pour avoir un échantillonnage équilibré
-# ==========================
-# Mélange stratifié des données
-x_train_new_sorted, y_train_new_sorted = shuffle(x_train_new, y_train_new, random_state=42)
+# Load NSL-KDD dataset (Encoded and Important Features only)
+data = pd.read_csv('imp_final_df_NSLKDD.csv')
+
+# Display the first few rows of the dataset to understand its structure
+print('originail shape:', data.shape)
+data.head()
+
+# Split the data into features and target
+X = data.drop(columns=['target'])
+y = data['target']
+
+# Split the dataset into training and testing sets
+x_train_new_sorted, X_test, y_train_new_sorted, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+
 
 # Ajustement de la taille pour correspondre aux batchs
 batch_size = 128
@@ -405,7 +403,6 @@ dataset_to_augment = x_train_new_sorted[:reste]
 Y = y_train_new_sorted[:reste]
 
 print(f"Shape of Y: {Y.shape}")
-dataset_to_augment = np.reshape(dataset_to_augment, (reste, 28, 28, 1))
 
 # ==========================
 # Remap des labels avec LabelEncoder
@@ -420,27 +417,17 @@ print("Labels remappés:", Y_remapped)
 # ==========================
 # Paramètres de l'entraînement
 # ==========================
-d = 256  # Dimension de l'espace latent
-epochs = 100
+d = 128  # Dimension de l'espace latent
+epochs = 50
 k = 40  # Facteur d'échelle entre alpha et sigma
 
 # ==========================
 # Lancement de l'entraînement
 # ==========================
-encoder, decoder, cluster_centers = train_vae(dataset_to_augment, Y_remapped, d, batch_size, epochs, k)
+encoder, decoder, cluster_centers, sigma_cluster   = train_vae(dataset_to_augment, Y_remapped, d, batch_size, epochs, k)
 
-encoder.save("./models_training/encoder_training_60_zzzzz.h5")
-decoder.save("./models_training/decoder_training_60_zzzzz.h5")
-np.save("./models_training/cluster_training_60_zzzzz.npy", cluster_centers.numpy())
+encoder.save("./models_training/encoder_esorics_1.h5")
+decoder.save("./models_training/decoder_esorics_1.h5")
+np.save("./models_training/cluster_esorics_1.npy", cluster_centers.numpy())
+np.save("./models_training/sigma_esorics_1.npy", sigma_cluster.numpy())
 
-#encoder, decoder, angle_x = train_vae(dataset_to_augment, Y_remapped, d, batch_size, 100, k)
-
-#encoder.save("./models/encoder_model_100_e.h5")
-#decoder.save("./models/decoder_model_100_e.h5")
-#np.save("./models/cluster_centers_100_e.npy", angle_x.numpy())
-
-#encoder, decoder, angle_x = train_vae(dataset_to_augment, Y_remapped, d, batch_size, 200, k)
-
-#encoder.save("./models/encoder_model_200_e.h5")
-#decoder.save("./models/decoder_model_200_e.h5")
-#np.save("./models/cluster_centers_200_e.npy", angle_x.numpy())
